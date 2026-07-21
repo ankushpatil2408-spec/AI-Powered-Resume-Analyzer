@@ -27,7 +27,7 @@ import java.util.List;
 @Service
 public class appService {
 
-    @Value("${genKey}")
+    @Value("${GEMINI_API_KEY}")
     private String genKey;
 
     @Value("${application-id}")
