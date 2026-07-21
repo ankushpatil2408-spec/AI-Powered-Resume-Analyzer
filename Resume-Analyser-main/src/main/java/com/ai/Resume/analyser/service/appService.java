@@ -30,7 +30,7 @@ public class appService {
     @Value("${GEMINI_API_KEY}")
     private String genKey;
 
-    @Value("${ADZUNA_APP_ID}")
+    @Value("${application-id=}"
     private String applicationId;
 
     @Value("${application-api-key}")
