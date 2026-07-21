@@ -17,7 +17,7 @@ import java.util.function.Function;
 @Service
 public class jwtService {
 
-    @Value("${JWT_SECRET}")
+    @Value("${jwt-key}")
     private  String Key;
 
     public String generateToken(String email){
