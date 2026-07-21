@@ -53,7 +53,7 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.postgresql</groupId>
+			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
