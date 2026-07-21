@@ -33,7 +33,7 @@ public class appService {
     @Value("${ADZUNA_APP_ID}")
     private String applicationId;
 
-    @Value("${ADZUNA_API_KEY}")
+    @Value("${application-api-key}")
     private String applicationApiKey;
 
     @Autowired
