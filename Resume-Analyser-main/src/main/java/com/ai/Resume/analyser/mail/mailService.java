@@ -18,7 +18,7 @@ import java.util.Collections;
 @Service
 public class mailService {
 
-   @Value("${apiKey}")
+   @Value("${BREVO_API_KEY}")
    private String apiKey;
     @Autowired
     private TemplateEngine templateEngine;
