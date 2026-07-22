@@ -50,7 +50,7 @@ public class successHandler implements AuthenticationSuccessHandler {
         String token = jwtService.generateToken(email);
         ResponseCookie cookie = ResponseCookie.from("entrypasstoken",token).path("/").httpOnly(true).maxAge(20*24*60*60).sameSite("None").secure(true).build();
         response.addHeader("Set-Cookie",cookie.toString());
-        response.sendRedirect("ai-powered-resume-analyzer-zeta.vercel.app");
+        response.sendRedirect("https://ai-powered-resume-analyzer-zeta.vercel.app/");
 
 
 
