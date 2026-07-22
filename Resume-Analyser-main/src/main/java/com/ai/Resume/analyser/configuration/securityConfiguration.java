@@ -3,24 +3,31 @@ package com.ai.Resume.analyser.configuration;
 import com.ai.Resume.analyser.jwt.jwtFilter;
 import com.ai.Resume.analyser.service.failureHandler;
 import com.ai.Resume.analyser.service.successHandler;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+
 import org.springframework.security.config.http.SessionCreationPolicy;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 
 @Configuration
 @EnableWebSecurity
-public class securityConfiguration {
+public class SecurityConfiguration {
 
 
     @Autowired
@@ -45,38 +52,44 @@ public class securityConfiguration {
 
 
         http
-                // Disable CSRF because we are using JWT
+
+                // JWT based application
                 .csrf(AbstractHttpConfigurer::disable)
 
 
-                // Allow frontend requests
+                // Enable CORS
                 .cors(Customizer.withDefaults())
 
 
-                // URL Authorization
+                // Authentication Provider
+                .authenticationProvider(authenticationProvider())
+
+
+                // API Permission
                 .authorizeHttpRequests(auth -> auth
 
-                        // Public APIs
                         .requestMatchers(
+
+                                // Auth APIs
                                 "/resumeAnalyser/entry/v1/**",
-                                "/",
                                 "/login",
                                 "/forgotpassword",
 
-                                // Google OAuth URLs
+                                // Google OAuth
                                 "/oauth2/**",
                                 "/login/oauth2/**",
 
-                                // Frontend resources
-                                "/static/**",
+                                // Frontend
+                                "/",
                                 "/index.html",
-                                "/manifest.json",
-                                "/assets/**"
+                                "/static/**",
+                                "/assets/**",
+                                "/manifest.json"
+
                         )
                         .permitAll()
 
 
-                        // Other APIs require authentication
                         .anyRequest()
                         .authenticated()
                 )
@@ -101,14 +114,17 @@ public class securityConfiguration {
                         .successHandler(successHandler)
 
                         .failureHandler(failureHandler)
+
                 )
 
 
-                // OAuth needs session
+                // Session required for OAuth2
                 .sessionManagement(session ->
+
                         session.sessionCreationPolicy(
                                 SessionCreationPolicy.IF_REQUIRED
                         )
+
                 );
 
 
@@ -117,20 +133,32 @@ public class securityConfiguration {
 
 
 
-
     @Bean
     public AuthenticationProvider authenticationProvider(){
 
+
         DaoAuthenticationProvider provider =
-                new DaoAuthenticationProvider(userDetails);
+                new DaoAuthenticationProvider();
+
+
+        provider.setUserDetailsService(userDetails);
 
 
         provider.setPasswordEncoder(
-                new BCryptPasswordEncoder(12)
+                passwordEncoder()
         );
 
 
         return provider;
+    }
+
+
+
+    @Bean
+    public PasswordEncoder passwordEncoder(){
+
+        return new BCryptPasswordEncoder(12);
+
     }
 
 }
