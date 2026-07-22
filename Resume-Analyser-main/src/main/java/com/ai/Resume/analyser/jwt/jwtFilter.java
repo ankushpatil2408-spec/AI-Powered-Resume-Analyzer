@@ -39,10 +39,17 @@ public class jwtFilter extends OncePerRequestFilter {
             String token = null;
             usersTable user = null;
             String reqUri = request.getRequestURI();
-            if (reqUri.startsWith("/resumeAnalyser/entry/v1") || reqUri.equals("/") || reqUri.equals("/login") || reqUri.equals("/forgotpassword")) {
-                filterChain.doFilter(request, response);
-                return;
-            }
+
+            if (reqUri.startsWith("/resumeAnalyser/entry/v1")
+    reqUri.equals("/")
+    reqUri.equals("/login")
+    reqUri.equals("/forgotpassword")
+    reqUri.startsWith("/oauth2/")
+    reqUri.startsWith("/login/oauth2/")) {
+
+    filterChain.doFilter(request, response);
+    return;
+}
 
             Cookie[] cookies = request.getCookies();
             if (cookies != null) {
