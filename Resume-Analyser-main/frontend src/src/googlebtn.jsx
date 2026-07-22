@@ -67,4 +67,4 @@ const GoogleButton = ({ onClick, disabled }) => {
   );
 };
 
-export default GoogleButton;
+
