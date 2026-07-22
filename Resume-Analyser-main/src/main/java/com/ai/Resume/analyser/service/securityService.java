@@ -106,10 +106,13 @@ public class securityService {
             headers.add(HttpHeaders.SET_COOKIE,cookie.toString());
             loginResponse loginRes=new loginResponse(user.getUsername(), user.getPreviousResults());
             return new ResponseEntity<>(loginRes,headers,HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Invalid credentials ",HttpStatus.UNAUTHORIZED);
-        }
-
+        }  catch (Exception e) {
+    e.printStackTrace();
+    return new ResponseEntity<>(
+            e.getClass().getSimpleName() + " : " + e.getMessage(),
+            HttpStatus.UNAUTHORIZED
+    );
+}
     }
 
 
