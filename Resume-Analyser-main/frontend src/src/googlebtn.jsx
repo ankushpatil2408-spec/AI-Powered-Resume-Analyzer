@@ -5,7 +5,9 @@ const GoogleButton = ({ onClick, disabled }) => {
 
     const handleClick = () => {
 
-  window.location.href= "https://ai-powered-resume-analyzer-wjad.onrender.com/oauth2/authorization/google";
+ const BASE_URL = "https://ai-powered-resume-analyzer-wjad.onrender.com";
+
+window.location.href = `${BASE_URL}/oauth2/authorization/google`;
   
   
     <button
