@@ -4,11 +4,10 @@ import React from "react";
 const GoogleButton = ({ onClick, disabled }) => {
 
     const handleClick = () => {
-    
-  window.location.href =
-`${import.meta.env.VITE_API_URL}/oauth2/authorization/google`;
-  };
-  return (
+
+  window.location.href= "https://ai-powered-resume-analyzer-wjad.onrender.com/oauth2/authorization/google";
+  
+  
     <button
       onClick={handleClick}
       disabled={disabled}
