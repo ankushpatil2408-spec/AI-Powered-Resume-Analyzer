@@ -18,7 +18,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-
 @Service
 public class jwtFilter extends OncePerRequestFilter {
 
@@ -31,30 +30,35 @@ public class jwtFilter extends OncePerRequestFilter {
     @Autowired
     private jwtService jwtservice;
 
-
-
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
+            throws ServletException, IOException {
+
         try {
+
             String token = null;
             usersTable user = null;
             String reqUri = request.getRequestURI();
 
+            // Public URLs
             if (reqUri.startsWith("/resumeAnalyser/entry/v1")
-    reqUri.equals("/")
-    reqUri.equals("/login")
-    reqUri.equals("/forgotpassword")
-    reqUri.startsWith("/oauth2/")
-    reqUri.startsWith("/login/oauth2/")) {
+                    || reqUri.equals("/")
+                    || reqUri.equals("/login")
+                    || reqUri.equals("/forgotpassword")
+                    || reqUri.startsWith("/oauth2/")
+                    || reqUri.startsWith("/login/oauth2/")) {
 
-    filterChain.doFilter(request, response);
-    return;
-}
+                filterChain.doFilter(request, response);
+                return;
+            }
 
             Cookie[] cookies = request.getCookies();
+
             if (cookies != null) {
                 for (Cookie cookie : cookies) {
-                    if (cookie.getName().equals("entrypasstoken")) {
+                    if ("entrypasstoken".equals(cookie.getName())) {
                         token = cookie.getValue();
                         break;
                     }
@@ -62,27 +66,42 @@ public class jwtFilter extends OncePerRequestFilter {
             }
 
             if (token != null) {
-                user = usersTableRepository.findById(jwtservice.getEmail(token)).orElse(null);
+                user = usersTableRepository
+                        .findById(jwtservice.getEmail(token))
+                        .orElse(null);
             }
 
-            if (token != null && user != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (token != null
+                    && user != null
+                    && SecurityContextHolder.getContext().getAuthentication() == null) {
+
                 if (jwtservice.validateToken(token, user.getEmail())) {
-                    User user1 = (User) entryService.loadUserByUsername(user.getEmail());
-                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(user1, null, user1.getAuthorities());
-                    usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
 
+                    User userDetails =
+                            (User) entryService.loadUserByUsername(user.getEmail());
 
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities());
+
+                    authentication.setDetails(
+                            new WebAuthenticationDetailsSource()
+                                    .buildDetails(request));
+
+                    SecurityContextHolder.getContext()
+                            .setAuthentication(authentication);
                 }
-
             }
-
 
             filterChain.doFilter(request, response);
-        }
-        catch (RuntimeException e) {
+
+        } catch (RuntimeException e) {
+
             System.out.println("Key validation failed and might be security Breach");
             System.out.println(e.getMessage());
+
             filterChain.doFilter(request, response);
         }
     }
