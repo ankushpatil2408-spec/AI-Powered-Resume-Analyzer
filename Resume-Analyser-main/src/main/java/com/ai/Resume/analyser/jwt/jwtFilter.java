@@ -8,6 +8,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,17 +19,23 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+
 @Service
 public class jwtFilter extends OncePerRequestFilter {
+
 
     @Autowired
     private entryPointService entryService;
 
+
     @Autowired
     private usersTableRepo usersTableRepository;
 
+
     @Autowired
     private jwtService jwtservice;
+
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -36,11 +43,16 @@ public class jwtFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
+
         try {
+
 
             String token = null;
             usersTable user = null;
+
             String reqUri = request.getRequestURI();
+
+
 
             // Public URLs
             if (reqUri.startsWith("/resumeAnalyser/entry/v1")
@@ -50,59 +62,163 @@ public class jwtFilter extends OncePerRequestFilter {
                     || reqUri.startsWith("/oauth2/")
                     || reqUri.startsWith("/login/oauth2/")) {
 
+
                 filterChain.doFilter(request, response);
                 return;
             }
 
+
+
+            // Get JWT Cookie
+
             Cookie[] cookies = request.getCookies();
 
-            if (cookies != null) {
-                for (Cookie cookie : cookies) {
-                    if ("entrypasstoken".equals(cookie.getName())) {
+
+            if(cookies != null){
+
+                for(Cookie cookie : cookies){
+
+                    if("entrypasstoken".equals(cookie.getName())){
+
                         token = cookie.getValue();
                         break;
+
                     }
                 }
             }
 
-            if (token != null) {
-                user = usersTableRepository
-                        .findById(jwtservice.getEmail(token))
-                        .orElse(null);
-            }
 
-            if (token != null
-                    && user != null
-                    && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                if (jwtservice.validateToken(token, user.getEmail())) {
+            if(token != null){
 
-                    User userDetails =
-                            (User) entryService.loadUserByUsername(user.getEmail());
 
-                    UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(
-                                    userDetails,
-                                    null,
-                                    userDetails.getAuthorities());
+                try {
 
-                    authentication.setDetails(
-                            new WebAuthenticationDetailsSource()
-                                    .buildDetails(request));
 
-                    SecurityContextHolder.getContext()
-                            .setAuthentication(authentication);
+                    String email = jwtservice.getEmail(token);
+
+
+                    user = usersTableRepository
+                            .findById(email)
+                            .orElse(null);
+
+
+
+                    if(user != null
+                            && SecurityContextHolder
+                            .getContext()
+                            .getAuthentication() == null){
+
+
+
+                        if(jwtservice.validateToken(token,user.getEmail())){
+
+
+                            User userDetails =
+                                    (User) entryService
+                                            .loadUserByUsername(user.getEmail());
+
+
+
+                            UsernamePasswordAuthenticationToken authentication =
+                                    new UsernamePasswordAuthenticationToken(
+                                            userDetails,
+                                            null,
+                                            userDetails.getAuthorities()
+                                    );
+
+
+
+                            authentication.setDetails(
+                                    new WebAuthenticationDetailsSource()
+                                            .buildDetails(request)
+                            );
+
+
+
+                            SecurityContextHolder
+                                    .getContext()
+                                    .setAuthentication(authentication);
+
+
+                        }
+                        else{
+
+
+                            clearCookie(response);
+
+
+                        }
+
+
+                    }
+                    else if(user == null){
+
+
+                        clearCookie(response);
+
+
+                    }
+
+
                 }
+                catch(Exception e){
+
+
+                    clearCookie(response);
+
+
+                }
+
             }
 
-            filterChain.doFilter(request, response);
 
-        } catch (RuntimeException e) {
 
-            System.out.println("Key validation failed and might be security Breach");
-            System.out.println(e.getMessage());
+            filterChain.doFilter(request,response);
 
-            filterChain.doFilter(request, response);
+
+
         }
+        catch(Exception e){
+
+
+            System.out.println(
+                    "JWT Filter Error : "
+                            + e.getMessage()
+            );
+
+
+            filterChain.doFilter(request,response);
+
+        }
+
+
     }
+
+
+
+
+    private void clearCookie(HttpServletResponse response){
+
+
+        Cookie cookie =
+                new Cookie("entrypasstoken","");
+
+
+        cookie.setHttpOnly(true);
+
+        cookie.setPath("/");
+
+        cookie.setMaxAge(0);
+
+        cookie.setSecure(false);
+
+
+        response.addCookie(cookie);
+
+
+    }
+
+
+
 }
