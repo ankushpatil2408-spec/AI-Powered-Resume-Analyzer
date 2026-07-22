@@ -65,6 +65,6 @@ const GoogleButton = ({ onClick, disabled }) => {
       <span style={{ fontWeight:600,flexGrow: 1 }}>Continue with Google</span>
     </button>
   );
-};
+
 
 
