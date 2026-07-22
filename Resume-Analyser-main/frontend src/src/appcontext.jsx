@@ -4,9 +4,7 @@ import { toast } from "react-toastify";
 export const usercontext =createContext();
 
 function Appcontext({children}){
-   const BASE_URL = import.meta.env.VITE_API_URL;
-   const backendURL = `${BASE_URL}/resumeAnalyser/entry/v1`;
-   const serviceURL = `${BASE_URL}/resumeAnalyserCore/service/v1`;
+   const BASE_URL = "https://ai-powered-resume-analyzer-wjad.onrender.com";
     const [islogged,setislogged]=useState(false)
     const [isprevious,setisprevious]=useState(false)
     const [username,setusername]=useState("")
