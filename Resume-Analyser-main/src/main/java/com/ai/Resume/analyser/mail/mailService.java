@@ -1,6 +1,5 @@
 package com.ai.Resume.analyser.mail;
 
-
 import brevo.ApiClient;
 import brevo.ApiException;
 import brevo.Configuration;
@@ -13,25 +12,28 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+
 import java.util.Collections;
 
 @Service
 public class mailService {
 
-   @Value("${BREVO_API_KEY}")
-   private String apiKey;
+    @Value("${BREVO_API_KEY}")
+    private String apiKey;
+
     @Autowired
     private TemplateEngine templateEngine;
 
-    public void sentVerifyOtp(String username,String email,String otp)  {
+    public void sentVerifyOtp(String username, String email, String otp) {
 
-        String toEmail=email.charAt(0)+"*********"+email.substring(email.indexOf("@"));
+        String toEmail = email.charAt(0) + "*********" + email.substring(email.indexOf("@"));
+
         Context context = new Context();
-        context.setVariable("username",username);
-        context.setVariable("email",toEmail);
-        context.setVariable("otp",otp);
+        context.setVariable("username", username);
+        context.setVariable("email", toEmail);
+        context.setVariable("otp", otp);
 
-        String mgs = templateEngine.process("verify-otp",context);
+        String mgs = templateEngine.process("verify-otp", context);
 
         ApiClient apiClient = Configuration.getDefaultApiClient();
         apiClient.setApiKey(apiKey);
@@ -39,30 +41,44 @@ public class mailService {
         TransactionalEmailsApi transactionalEmailsApi = new TransactionalEmailsApi(apiClient);
 
         SendSmtpEmail sendSmtpEmail = new SendSmtpEmail();
-        sendSmtpEmail.setSender(new SendSmtpEmailSender().name("Resume Analyser").email("a1b2c3d4w7x8y9z0@gmail.com"));
-        sendSmtpEmail.setTo(Collections.singletonList(new SendSmtpEmailTo().name(username).email(email)));
+        sendSmtpEmail.setSender(
+                new SendSmtpEmailSender()
+                        .name("Resume Analyser")
+                        .email("a1b2c3d4w7x8y9z0@gmail.com"));
+
+        sendSmtpEmail.setTo(Collections.singletonList(
+                new SendSmtpEmailTo()
+                        .name(username)
+                        .email(email)));
+
         sendSmtpEmail.setSubject("Email verification OTP");
         sendSmtpEmail.setHtmlContent(mgs);
 
-        try{
+        try {
             transactionalEmailsApi.sendTransacEmail(sendSmtpEmail);
+            System.out.println("OTP Email Sent Successfully");
         } catch (ApiException e) {
+
+            System.out.println("========== BREVO VERIFY OTP ERROR ==========");
+            System.out.println("Status Code : " + e.getCode());
+            System.out.println("Message     : " + e.getMessage());
+            System.out.println("Response    : " + e.getResponseBody());
+            e.printStackTrace();
+
             throw new RuntimeException(e);
         }
-
-
-
     }
 
-    public void sentResetOtp(String username,String email,String otp)  {
+    public void sentResetOtp(String username, String email, String otp) {
 
-        String toEmail=email.charAt(0)+"*********"+email.substring(email.indexOf("@"));
+        String toEmail = email.charAt(0) + "*********" + email.substring(email.indexOf("@"));
+
         Context context = new Context();
-        context.setVariable("username",username);
-        context.setVariable("email",toEmail);
-        context.setVariable("otp",otp);
+        context.setVariable("username", username);
+        context.setVariable("email", toEmail);
+        context.setVariable("otp", otp);
 
-        String mgs = templateEngine.process("reset-otp",context);
+        String mgs = templateEngine.process("reset-otp", context);
 
         ApiClient apiClient = Configuration.getDefaultApiClient();
         apiClient.setApiKey(apiKey);
@@ -70,20 +86,31 @@ public class mailService {
         TransactionalEmailsApi transactionalEmailsApi = new TransactionalEmailsApi(apiClient);
 
         SendSmtpEmail sendSmtpEmail = new SendSmtpEmail();
-        sendSmtpEmail.setSender(new SendSmtpEmailSender().name("Resume Analyser").email("a1b2c3d4w7x8y9z0@gmail.com"));
-        sendSmtpEmail.setTo(Collections.singletonList(new SendSmtpEmailTo().name(username).email(email)));
+        sendSmtpEmail.setSender(
+                new SendSmtpEmailSender()
+                        .name("Resume Analyser")
+                        .email("a1b2c3d4w7x8y9z0@gmail.com"));
+
+        sendSmtpEmail.setTo(Collections.singletonList(
+                new SendSmtpEmailTo()
+                        .name(username)
+                        .email(email)));
+
         sendSmtpEmail.setSubject("Reset password OTP");
         sendSmtpEmail.setHtmlContent(mgs);
 
-        try{
+        try {
             transactionalEmailsApi.sendTransacEmail(sendSmtpEmail);
+            System.out.println("Reset OTP Email Sent Successfully");
         } catch (ApiException e) {
+
+            System.out.println("========== BREVO RESET OTP ERROR ==========");
+            System.out.println("Status Code : " + e.getCode());
+            System.out.println("Message     : " + e.getMessage());
+            System.out.println("Response    : " + e.getResponseBody());
+            e.printStackTrace();
+
             throw new RuntimeException(e);
         }
-
-
-
     }
-
-
 }
