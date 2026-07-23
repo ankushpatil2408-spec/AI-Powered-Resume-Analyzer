@@ -3,24 +3,18 @@ package com.ai.Resume.analyser.configuration;
 import com.ai.Resume.analyser.jwt.jwtFilter;
 import com.ai.Resume.analyser.service.failureHandler;
 import com.ai.Resume.analyser.service.successHandler;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-
 import org.springframework.security.config.http.SessionCreationPolicy;
-
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -30,141 +24,110 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-
 @Configuration
 @EnableWebSecurity
 public class securityConfiguration {
 
-
     @Autowired
     private entryPointService userDetails;
-
 
     @Autowired
     private jwtFilter jwtfilter;
 
-
     @Autowired
     private successHandler successHandler;
-
 
     @Autowired
     private failureHandler failureHandler;
 
-
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-
         http
-
-                // JWT based application
                 .csrf(AbstractHttpConfigurer::disable)
 
-
-                // Enable CORS
                 .cors(Customizer.withDefaults())
 
-
-                // Authentication Provider
                 .authenticationProvider(authenticationProvider())
 
-
-                // API Permission
                 .authorizeHttpRequests(auth -> auth
-
                         .requestMatchers(
-
-                                // Auth APIs
                                 "/resumeAnalyser/entry/v1/**",
                                 "/login",
                                 "/forgotpassword",
-
-                                // Google OAuth
                                 "/oauth2/**",
                                 "/login/oauth2/**",
-
-                                // Frontend
                                 "/",
                                 "/index.html",
-                                "/static/**",
                                 "/assets/**",
-                                "/manifest.json"
-
-                        )
-                        .permitAll()
-
-
-                        .anyRequest()
-                        .authenticated()
+                                "/static/**",
+                                "/manifest.json",
+                                "/favicon.ico"
+                        ).permitAll()
+                        .anyRequest().authenticated()
                 )
 
+                .oauth2Login(oauth -> oauth
+                        .loginPage("/oauth2/authorization/google")
+                        .successHandler(successHandler)
+                        .failureHandler(failureHandler)
+                )
 
-                // Disable default logout
                 .logout(AbstractHttpConfigurer::disable)
 
-
-                // JWT Filter
-                .addFilterBefore(
-                        jwtfilter,
-                        UsernamePasswordAuthenticationFilter.class
-                )
-
-
-                // Google Login
-                .oauth2Login(oauth -> oauth
-
-                        .loginPage("/oauth2/authorization/google")
-
-                        .successHandler(successHandler)
-
-                        .failureHandler(failureHandler)
-
-                )
-
-
-                // Session required for OAuth2
                 .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                )
 
-                        session.sessionCreationPolicy(
-                                SessionCreationPolicy.IF_REQUIRED
-                        )
-
-                );
-
+                .addFilterBefore(jwtfilter,
+                        UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-
-
     @Bean
-    public AuthenticationProvider authenticationProvider(){
-
+    public AuthenticationProvider authenticationProvider() {
 
         DaoAuthenticationProvider provider =
                 new DaoAuthenticationProvider();
 
-
         provider.setUserDetailsService(userDetails);
-
-
-        provider.setPasswordEncoder(
-                passwordEncoder()
-        );
-
+        provider.setPasswordEncoder(passwordEncoder());
 
         return provider;
     }
 
-
-
     @Bean
-    public PasswordEncoder passwordEncoder(){
-
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(12);
-
     }
 
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowedOrigins(List.of(
+                "https://ai-powered-resume-analyzer-wjad.onrender.com"
+        ));
+
+        configuration.setAllowedMethods(List.of(
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE",
+                "OPTIONS"
+        ));
+
+        configuration.setAllowedHeaders(List.of("*"));
+
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration("/**", configuration);
+
+        return source;
+    }
 }
