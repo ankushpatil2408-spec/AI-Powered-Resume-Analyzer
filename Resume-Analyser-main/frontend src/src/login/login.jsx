@@ -256,6 +256,7 @@ function Login() {
             }
             {isemailverified ? <div className={Styles.verifycontainer}>
                 <h1>Verify Email</h1>
+                  <p className={Styles.successmsg}> OTP has been sent successfully to your email. </p>
                 <p>Enter the 6-digit OTP sent to your email address to complete your registration</p>
                 <div className={Styles.otpcontainer}>
                     {otp.map((value, index) => <input inputMode="numeric" maxLength={1} placeholder="--" key={index} value={value} autoComplete="off" type="text" className={Styles.otpinp} id={index} onChange={(e) => handleInput(index, e)} onKeyDown={(e) => { handlebck(index, e) }} />)}
