@@ -44,7 +44,7 @@ public class mailService {
         sendSmtpEmail.setSender(
                 new SendSmtpEmailSender()
                         .name("Resume Analyser")
-                        .email("a1b2c3d4w7x8y9z0@gmail.com"));
+                        .email("ankushpatil.2408@gmail.com"));
 
         sendSmtpEmail.setTo(Collections.singletonList(
                 new SendSmtpEmailTo()
@@ -89,7 +89,7 @@ public class mailService {
         sendSmtpEmail.setSender(
                 new SendSmtpEmailSender()
                         .name("Resume Analyser")
-                        .email("a1b2c3d4w7x8y9z0@gmail.com"));
+                        .email("ankushpatil.2408@gmail.com"));
 
         sendSmtpEmail.setTo(Collections.singletonList(
                 new SendSmtpEmailTo()
