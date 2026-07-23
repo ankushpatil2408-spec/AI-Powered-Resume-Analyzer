@@ -62,6 +62,7 @@ function Login() {
                     if (response.ok) {
                         setemailverified(true)
                         setisloading(false)
+                        toast.success("OTP sent successfully to your email");
                     }
                     else {
                         toast.error("Email already registered")
