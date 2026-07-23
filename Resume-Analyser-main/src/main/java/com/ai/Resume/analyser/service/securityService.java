@@ -102,7 +102,7 @@ public class securityService {
             String token = jwt.generateToken(req.getEmail());
             usersTable user =usersTableRepository.findById(req.getEmail()).orElse(null);
             HttpHeaders headers = new HttpHeaders();
-            ResponseCookie cookie= ResponseCookie.from("entrypasstoken",token).path("/").httpOnly(true).maxAge(20*24*60*60).sameSite("Strict").secure(false).build();
+            ResponseCookie cookie= ResponseCookie.from("entrypasstoken",token).path("/").httpOnly(true).maxAge(20*24*60*60).sameSite("None").secure(true).build();
             headers.add(HttpHeaders.SET_COOKIE,cookie.toString());
             loginResponse loginRes=new loginResponse(user.getUsername(), user.getPreviousResults());
             return new ResponseEntity<>(loginRes,headers,HttpStatus.OK);
