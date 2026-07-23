@@ -211,7 +211,7 @@ public class jwtFilter extends OncePerRequestFilter {
 
         cookie.setMaxAge(0);
 
-        cookie.setSecure(false);
+        cookie.setSecure(true);
 
 
         response.addCookie(cookie);
