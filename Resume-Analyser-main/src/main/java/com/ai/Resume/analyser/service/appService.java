@@ -201,10 +201,59 @@ public class appService {
         }
     }
 
-    public ResponseEntity<?> tokenValidation() {
+  public ResponseEntity<?> tokenValidation() {
+
+    try {
+
+        System.out.println("====================================");
+        System.out.println("TOKEN VALIDATION START");
+
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            System.out.println("Authentication is NULL");
+            return new ResponseEntity<>("Authentication is NULL", HttpStatus.UNAUTHORIZED);
+        }
+
         String name = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        System.out.println("Authentication Name : " + name);
+
+        boolean exists = usersTableRepository.existsById(name);
+        System.out.println("Exists In DB : " + exists);
+
         usersTable user = usersTableRepository.findById(name).orElse(null);
-        loginResponse loginRes = new loginResponse(user.getUsername(), user.getPreviousResults());
+
+        System.out.println("User Object : " + user);
+
+        if (user == null) {
+            System.out.println("User NOT FOUND");
+            return new ResponseEntity<>(
+                    "User not found in DB : " + name,
+                    HttpStatus.NOT_FOUND
+            );
+        }
+
+        System.out.println("Username : " + user.getUsername());
+        System.out.println("Previous Result : " + user.getPreviousResults());
+
+        loginResponse loginRes = new loginResponse(
+                user.getUsername(),
+                user.getPreviousResults()
+        );
+
+        System.out.println("TOKEN VALIDATION SUCCESS");
+        System.out.println("====================================");
+
         return new ResponseEntity<>(loginRes, HttpStatus.OK);
+
+    } catch (Exception e) {
+
+        System.out.println("TOKEN VALIDATION ERROR");
+        e.printStackTrace();
+
+        return new ResponseEntity<>(
+                e.getMessage(),
+                HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
+}
 }
