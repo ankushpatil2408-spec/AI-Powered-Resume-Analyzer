@@ -5,6 +5,8 @@ export const usercontext =createContext();
 
 function Appcontext({children}){
    const BASE_URL = "https://ai-powered-resume-analyzer-wjad.onrender.com";
+   const backendURL = `${BASE_URL}/resumeAnalyser/entry/v1`;
+    const serviceURL = `${BASE_URL}/resumeAnalyserCore/service/v1`;
     const [islogged,setislogged]=useState(false)
     const [isprevious,setisprevious]=useState(false)
     const [username,setusername]=useState("")
