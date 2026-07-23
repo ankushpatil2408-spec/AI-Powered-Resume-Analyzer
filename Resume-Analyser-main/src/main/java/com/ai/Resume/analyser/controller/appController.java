@@ -12,7 +12,7 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("resumeAnalyserCore/service/v1")
-@CrossOrigin( origins = "http://localhost:5173" , allowCredentials = "true", allowedHeaders = "*" , methods = {RequestMethod.GET,RequestMethod.POST,RequestMethod.DELETE,RequestMethod.PUT,RequestMethod.OPTIONS,RequestMethod.HEAD})
+
 public class appController {
 
     @Autowired
